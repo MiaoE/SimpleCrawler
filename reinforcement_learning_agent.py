@@ -1,6 +1,7 @@
 import random
+from abc import abstractmethod
 
-from util import Counter, flip_coin
+from util import Counter, flip_coin, raiseNotDefined
 
 class ReinforcementAgent:
     def __init__(self, actionFcn=None, num_training=100, epsilon=0.5, alpha=0.5, gamma=1):
@@ -57,6 +58,10 @@ class ReinforcementAgent:
     def do_action(self, state, action):
         self.last_state = state
         self.last_action = action
+
+    @abstractmethod
+    def update(self, state, action, next_state, reward):
+        raiseNotDefined()
 
 class QLearningAgent(ReinforcementAgent):
     def __init__(self, **kargs):
