@@ -64,8 +64,8 @@ class ReinforcementAgent:
         raiseNotDefined()
 
 class QLearningAgent(ReinforcementAgent):
-    def __init__(self, **kargs):
-        super.__init__(self, **kargs)
+    def __init__(self, **kwargs):
+        ReinforcementAgent.__init__(self, **kwargs)
         self.q_values = Counter()
 
     def get_qVal(self, state, action):
