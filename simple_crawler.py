@@ -73,74 +73,58 @@ class SimpleCrawler:
             return math.atan(-y / x)
         return 0.0
 
-    def draw(self):
-        x1, y1 = self.getRobotPosition()
-        x1 = x1 % self.totWidth
+    def draw(self, step_count, step_delay):
+        x1, y1 = self.get_position()
+        x1 = x1 % self.width
 
         ## Check Lower Still on the ground
         if y1 != self.groundY:
             raise Exception('Flying Robot!!')
 
-        rotationAngle = self.getRotationAngle()
-        cosRot, sinRot = self.__getCosAndSin(rotationAngle)
+        rotation_angle = self.get_rotation_angle()
+        cos_rotation, sin_rotation = self.__get_cos_and_sin(rotation_angle)
 
-        x2 = x1 + self.robotWidth * cosRot
-        y2 = y1 - self.robotWidth * sinRot
+        x2 = x1 + self.robot_width * cos_rotation
+        y2 = y1 - self.robot_width * sin_rotation
 
-        x3 = x1 - self.robotHeight * sinRot
-        y3 = y1 - self.robotHeight * cosRot
+        x3 = x1 - self.robot_height * sin_rotation
+        y3 = y1 - self.robot_height * cos_rotation
 
-        x4 = x3 + cosRot*self.robotWidth
-        y4 = y3 - sinRot*self.robotWidth
+        x4 = x3 + cos_rotation * self.robot_width
+        y4 = y3 - sin_rotation * self.robot_width
 
-        self.canvas.coords(self.robotBody,x1,y1,x2,y2,x4,y4,x3,y3)
+        self.canvas.coords(self.robot_body,x1,y1,x2,y2,x4,y4,x3,y3)
 
-        armCos, armSin = self.__getCosAndSin(rotationAngle+self.armAngle)
-        xArm = x4 + self.armLength * armCos
-        yArm = y4 - self.armLength * armSin
+        arm_cos, arm_sin = self.__get_cos_and_sin(rotation_angle+self.arm_angle)
+        xArm = x4 + self.arm_length * arm_cos
+        yArm = y4 - self.arm_length * arm_sin
 
-        self.canvas.coords(self.robotArm,x4,y4,xArm,yArm)
+        self.canvas.coords(self.robot_arm,x4,y4,xArm,yArm)
 
-        handCos, handSin = self.__getCosAndSin(self.handAngle+rotationAngle)
-        xHand = xArm + self.handLength * handCos
-        yHand = yArm - self.handLength * handSin
+        hand_cos, hand_sin = self.__get_cos_and_sin(rotation_angle+self.hand_angle)
+        xHand = xArm + self.hand_length * hand_cos
+        yHand = yArm - self.hand_length * hand_sin
 
-        self.canvas.coords(self.robotHand,xArm,yArm,xHand,yHand)
+        self.canvas.coords(self.robot_hand,xArm,yArm,xHand,yHand)
 
+        steps = step_count - self.last_step
+        if steps == 0: return
 
-        # Position and Velocity Sign Post
-#        time = len(self.positions) + 0.5 * sum(self.angleSums)
-#        velocity = (self.positions[-1]-self.positions[0]) / time
-#        if len(self.positions) == 1: return
-        steps = (stepCount - self.lastStep)
-        if steps==0:return
- #       pos = self.positions[-1]
-#        velocity = (pos - self.lastPos) / steps
-  #      g = .9 ** (10 * stepDelay)
-#        g = .99 ** steps
-#        self.velAvg = g * self.velAvg + (1 - g) * velocity
- #       g = .999 ** steps
- #       self.velAvg2 = g * self.velAvg2 + (1 - g) * velocity
         pos = self.positions[-1]
         velocity = pos - self.positions[-2]
         vel2 = (pos - self.positions[0]) / len(self.positions)
-        self.velAvg = .9 * self.velAvg + .1 * vel2
-        velMsg = '100-step Avg Velocity: %.2f' % self.velAvg
-#        velMsg2 = '1000-step Avg Velocity: %.2f' % self.velAvg2
-        velocityMsg = 'Velocity: %.2f' % velocity
-        positionMsg = 'Position: %2.f' % pos
-        stepMsg = 'Step: %d' % stepCount
+        self.vel_avg = .9 * self.vel_avg + .1 * vel2
+        vel_msg = '100-step Avg Velocity: %.2f' % self.vel_avg
+        velocity_msg = 'Velocity: %.2f' % velocity
+        position_msg = 'Position: %2.f' % pos
+        step_msg = 'Step: %d' % step_count
         if 'vel_msg' in dir(self):
             self.canvas.delete(self.vel_msg)
             self.canvas.delete(self.pos_msg)
             self.canvas.delete(self.step_msg)
             self.canvas.delete(self.velavg_msg)
- #           self.canvas.delete(self.velavg2_msg)
- #       self.velavg2_msg = self.canvas.create_text(850,190,text=velMsg2)
-        self.velavg_msg = self.canvas.create_text(650,190,text=velMsg)
-        self.vel_msg = self.canvas.create_text(450,190,text=velocityMsg)
-        self.pos_msg = self.canvas.create_text(250,190,text=positionMsg)
-        self.step_msg = self.canvas.create_text(50,190,text=stepMsg)
-#        self.lastPos = pos
-        self.lastStep = stepCount
-#        self.lastVel = velocity
+        self.velavg_msg = self.canvas.create_text(650,190,text=vel_msg)
+        self.vel_msg = self.canvas.create_text(450,190,text=velocity_msg)
+        self.pos_msg = self.canvas.create_text(250,190,text=position_msg)
+        self.step_msg = self.canvas.create_text(50,190,text=step_msg)
+        self.lastStep = step_count
