@@ -39,8 +39,26 @@ class SimpleCrawler:
     def __get_cos_and_sin(self, angle):
         return math.cos(angle), math.sin(angle)
     
-    def __displacement(self):
-        pass
+    def __displacement(self, old_arm_deg, old_hand_deg, arm_deg, hand_deg):
+        old_arm_cos, old_arm_sin = self.__get_cos_and_sin(old_arm_deg)
+        arm_cos, arm_sin = self.__get_cos_and_sin(arm_deg)
+        old_hand_cos, old_hand_sin = self.__get_cos_and_sin(old_hand_deg)
+        hand_cos, hand_sin = self.__get_cos_and_sin(hand_deg)
+
+        x_old = self.arm_length * old_arm_cos + self.hand_length * old_hand_cos + self.robot_width
+        y_old = self.arm_length * old_arm_sin + self.hand_length * old_hand_sin + self.robot_height
+
+        x = self.arm_length * arm_cos + self.hand_length * hand_cos + self.robot_width
+        y = self.arm_length * arm_sin + self.hand_length * hand_sin + self.robot_height
+
+        if y < 0:
+            if y_old <= 0:
+                return math.sqrt(x_old*x_old + y_old*y_old) - math.sqrt(x*x + y*y)
+            return (x_old - y_old*(x-x_old) / (y - y_old)) - math.sqrt(x*x + y*y)
+        else:
+            if y_old  >= 0:
+                return 0.0
+            return -(x - y * (x_old-x)/(y_old-y)) + math.sqrt(x_old*x_old + y_old*y_old)
 
     def set_angles(self, arm, hand):
         self.arm_angle = arm
@@ -53,10 +71,30 @@ class SimpleCrawler:
         return self.position
     
     def move_arm(self, new_arm_angle):
-        pass
+        if new_arm_angle > self.max_arm_angle:
+            raise Exception('Crawling Robot: Arm Raised too high. Careful!')
+        if new_arm_angle < self.min_arm_angle:
+            raise Exception('Crawling Robot: Arm Raised too low. Careful!')
+        disp = self.__displacement(self.arm_angle, self.hand_angle, new_arm_angle, self.hand_angle)
+        self.position = (self.position[0]+disp, self.position[1])
+        self.arm_angle = new_arm_angle
+
+        self.positions.append(self.get_position()[0])
+        if len(self.positions) > 100:
+            self.positions.pop(0)
 
     def move_hand(self, new_hand_angle):
-        pass
+        if new_hand_angle > self.max_hand_angle:
+            raise Exception('Crawling Robot: Hand Raised too high. Careful!')
+        if new_hand_angle < self.min_hand_angle:
+            raise Exception('Crawling Robot: Hand Raised too low. Careful!')
+        disp = self.__displacement(self.arm_angle, self.hand_angle, self.arm_angle, new_hand_angle)
+        self.position = (self.position[0]+disp, self.position[1])
+        self.hand_angle = new_hand_angle
+
+        self.positions.append(self.get_position()[0])
+        if len(self.positions) > 100:
+            self.positions.pop(0)
 
     def get_arm_minmax_angle(self):
         return self.min_arm_angle, self.max_arm_angle
