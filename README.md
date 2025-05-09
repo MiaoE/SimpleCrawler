@@ -3,6 +3,6 @@ This project features a simple crawler agent that utilizes active reinforcement 
 
 ## How To Run
 1. Ensure you have a Python 3.10+ environment, `python --version`
-2. Clone the project into desired parent folder, `cd [folder path]` `git clone https://github.com/MiaoE/SimpleCrawler.git`
+2. Clone the project into desired parent folder, `cd [folder path]`, `git clone https://github.com/MiaoE/SimpleCrawler.git`
 3. `cd SimpleCrawler`
-4. `python main.py`
+4. `python main.py` or optionally add any or all of `--epsilon [float between 0-1]`, `--gamma [float between 0-1]`, `--alpha [float between 0-1]` arguments after the command
