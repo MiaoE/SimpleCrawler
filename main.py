@@ -1,6 +1,6 @@
 import argparse
 
-from game_visuals import run
+from visuals import run
 
 if __name__ == '__main__':
     parse = True
